@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 1200" fill="none">
+  <defs>
+    <style>@media (prefers-reduced-motion: reduce){.flow-dot{display:none}}</style>
+    <linearGradient id="bg" x1="110" y1="80" x2="1320" y2="1130" gradientUnits="userSpaceOnUse"><stop stop-color="#F7FAFF"/><stop offset=".5" stop-color="#EAF2FF"/><stop offset="1" stop-color="#DCEAFF"/></linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientTransform="translate(1035 548) rotate(90) scale(365)"><stop stop-color="#60A5FA" stop-opacity=".3"/><stop offset="1" stop-color="#60A5FA" stop-opacity="0"/></radialGradient>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse"><path d="M48 0H0v48" stroke="#2563EB" stroke-opacity=".07"/></pattern>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="24" stdDeviation="28" flood-color="#1D4ED8" flood-opacity=".18"/></filter>
+    <linearGradient id="gateway" x1="814" y1="368" x2="1110" y2="704" gradientUnits="userSpaceOnUse"><stop stop-color="#60A5FA"/><stop offset="1" stop-color="#2563EB"/></linearGradient>
+  </defs>
+  <rect width="1440" height="1200" fill="url(#bg)"/><rect width="1440" height="1200" fill="url(#grid)"/><circle cx="1035" cy="548" r="365" fill="url(#glow)"/>
+  <g opacity=".45" stroke="#93B4E8" stroke-width="2"><path d="M70 164h210M70 1028h290M1190 140h178M1230 1060h138"/><path d="M98 136v56M1254 1028v64"/></g>
+  <g filter="url(#shadow)">
+    <rect x="797" y="342" width="340" height="408" rx="42" fill="#fff" fill-opacity=".93" stroke="#AFC9F2" stroke-width="2"/>
+    <rect x="831" y="376" width="272" height="340" rx="28" fill="url(#gateway)"/>
+    <rect x="870" y="419" width="194" height="72" rx="18" fill="#fff" fill-opacity=".16" stroke="#fff" stroke-opacity=".34"/><circle cx="907" cy="455" r="10" fill="#DBEAFE"/><path d="M936 445h91M936 463h58" stroke="#EFF6FF" stroke-width="8" stroke-linecap="round" opacity=".9"/>
+    <rect x="870" y="516" width="194" height="72" rx="18" fill="#fff" fill-opacity=".16" stroke="#fff" stroke-opacity=".34"/><circle cx="907" cy="552" r="10" fill="#DBEAFE"/><path d="M936 542h91M936 560h72" stroke="#EFF6FF" stroke-width="8" stroke-linecap="round" opacity=".9"/>
+    <rect x="870" y="613" width="194" height="60" rx="18" fill="#102B65" fill-opacity=".32" stroke="#fff" stroke-opacity=".28"/><path d="M925 643h82" stroke="#BFDBFE" stroke-width="9" stroke-linecap="round"/>
+  </g>
+  <g stroke="#3B82F6" stroke-width="4" stroke-linecap="round"><path d="M510 438C638 438 661 490 797 490"/><path d="M510 650C638 650 661 602 797 602"/><path d="M1137 490c95 0 106-98 186-98"/><path d="M1137 548h186"/><path d="M1137 606c95 0 106 98 186 98"/></g>
+  <g fill="#fff" stroke="#7BA7E8" stroke-width="2" filter="url(#shadow)"><rect x="330" y="375" width="180" height="126" rx="24"/><rect x="330" y="587" width="180" height="126" rx="24"/><rect x="1220" y="341" width="158" height="102" rx="22"/><rect x="1220" y="497" width="158" height="102" rx="22"/><rect x="1220" y="653" width="158" height="102" rx="22"/></g>
+  <g fill="#1D4ED8"><circle cx="378" cy="423" r="17" fill="#BFDBFE"/><path d="M369 423h18M378 414v18" stroke="#2563EB" stroke-width="4" stroke-linecap="round"/><rect x="407" y="411" width="67" height="9" rx="4.5"/><rect x="407" y="431" width="46" height="7" rx="3.5" opacity=".35"/><circle cx="378" cy="635" r="17" fill="#C7D2FE"/><path d="m368 635 7 7 13-16" stroke="#4F46E5" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><rect x="407" y="623" width="67" height="9" rx="4.5"/><rect x="407" y="643" width="52" height="7" rx="3.5" opacity=".35"/></g>
+  <g fill="#315FA8"><circle cx="1255" cy="392" r="11" fill="#93C5FD"/><rect x="1278" y="384" width="65" height="8" rx="4"/><circle cx="1255" cy="548" r="11" fill="#A5B4FC"/><rect x="1278" y="540" width="65" height="8" rx="4"/><circle cx="1255" cy="704" r="11" fill="#7DD3FC"/><rect x="1278" y="696" width="65" height="8" rx="4"/></g>
+  <g class="flow-dot"><circle cx="593" cy="438" r="8" fill="#2563EB"><animate attributeName="cx" values="510;790" dur="2.8s" repeatCount="indefinite"/></circle><circle cx="682" cy="650" r="8" fill="#6366F1"><animate attributeName="cx" values="510;790" dur="3.2s" repeatCount="indefinite"/></circle><circle cx="1204" cy="548" r="8" fill="#2563EB"><animate attributeName="cx" values="1144;1318" dur="2.4s" repeatCount="indefinite"/></circle></g>
+  <g font-family="Manrope, Arial, sans-serif" fill="#31527F"><text x="330" y="351" font-size="20" font-weight="700" letter-spacing="3">CLIENT EDGES</text><text x="843" y="315" font-size="20" font-weight="700" letter-spacing="3">MODELPORT GATEWAY</text><text x="1220" y="316" font-size="20" font-weight="700" letter-spacing="3">PROVIDERS</text><text x="330" y="778" font-size="17" font-weight="600" letter-spacing="2">ROUTE · GOVERN · OBSERVE</text></g>
+</svg>

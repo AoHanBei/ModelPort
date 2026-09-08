@@ -1,0 +1,71 @@
+# Minimal, self-contained ModelPort configuration.
+#
+# Copy this file to `config.toml`, set the referenced secrets in the process
+# environment, then run `model-port config validate`. In TOML mode, add every
+# optional Provider explicitly and keep its secrets in environment variables;
+# see docs/CONFIGURATION.md.
+
+default_provider = "deepseek"
+provider_order = ["deepseek"]
+
+[server]
+bind = "127.0.0.1:38082"
+max_request_body_bytes = 33554432
+max_concurrent_requests = 64
+
+[auth]
+token_env = "MODELPORT_AUTH_TOKEN"
+
+# DeepSeek's Anthropic-compatible endpoint keeps the client contract intact.
+[providers.deepseek]
+display_name = "DeepSeek Official Anthropic"
+protocol = "anthropic"
+base_url_env = "DEEPSEEK_ANTHROPIC_BASE_URL"
+base_url = "https://api.deepseek.com/anthropic"
+api_key_env = "DEEPSEEK_ANTHROPIC_AUTH_TOKEN"
+default_model = "deepseek-v4-flash"
+models = [
+  "deepseek-v4-pro",
+  "deepseek-v4-flash",
+  "deepseek-chat",
+  "deepseek-reasoner",
+]
+model_prefixes = ["deepseek-"]
+passthrough_unknown_models = false
+deduplicate_stream_text = true
+
+[providers.deepseek.tool_use]
+supported = true
+tool_choice = true
+parallel_tool_calls = true
+streaming_arguments = "native"
+response_validation = "best_effort"
+repair_invalid_arguments = false
+
+[aliases]
+deepseek-v4-pro = "deepseek:deepseek-v4-pro"
+deepseek-v4-flash = "deepseek:deepseek-v4-flash"
+
+# Smart aliases are opt-in and independent from deterministic aliases above.
+# Roll out with off -> shadow -> active and an explicit activation percentage.
+[routing]
+mode = "off"
+default_profile = "balanced"
+policy_version = "builtin-v1"
+activation_percent = 0
+
+[routing.groups.general]
+aliases = ["modelport-auto"]
+default_profile = "balanced"
+
+[[routing.groups.general.candidates]]
+provider = "deepseek"
+model = "deepseek-v4-pro"
+quality = 0.95
+latency_hint_ms = 1800
+
+[[routing.groups.general.candidates]]
+provider = "deepseek"
+model = "deepseek-v4-flash"
+quality = 0.82
+latency_hint_ms = 700
