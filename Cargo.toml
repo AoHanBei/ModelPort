@@ -19,7 +19,7 @@ strip = "symbols"
 
 [dependencies]
 async-stream = "0.3"
-argon2 = "0.5"
+argon2 = "0.6"
 axum = { version = "0.8", features = ["macros"] }
 futures-util = "0.3"
 jsonschema = { version = "0.48", default-features = false }
