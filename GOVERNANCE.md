@@ -1,6 +1,6 @@
 # Governance
 
-ModelPort is an open-source project maintained by `@tiammomo`.
+ModelPort is an open-source project maintained by `@AoHanBei`.
 
 ## Roles
 

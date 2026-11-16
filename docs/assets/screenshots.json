@@ -1,0 +1,12 @@
+{
+  "sourceRevision": "7d538d73aec633a724221a5162811c3a9f87b4cc",
+  "source": "dashboard/src/pages/EnterprisePage.tsx",
+  "fixture": "scripts/capture-doc-screenshots.mjs",
+  "dataKind": "synthetic-api-fixture",
+  "fixtureTime": "2026-11-16T09:00:00+08:00",
+  "browser": "157.0.8103.51",
+  "files": [
+    "request-ledger.png",
+    "request-detail.png"
+  ]
+}

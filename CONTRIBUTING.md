@@ -19,7 +19,7 @@ needed for the complete stack.
 not install Rust, Node.js, npm, Docker, or Playwright browsers.
 
 ```bash
-git clone git@github.com:tiammomo/ModelPort.git
+git clone git@github.com:AoHanBei/ModelPort.git
 cd ModelPort
 cp .env.example .env
 cp config.example.toml config.toml

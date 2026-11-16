@@ -18,7 +18,7 @@ you do not need to install PostgreSQL on the host.
 ## 2. Create Local Configuration
 
 ```bash
-git clone https://github.com/tiammomo/ModelPort.git
+git clone https://github.com/AoHanBei/ModelPort.git
 cd ModelPort
 cp deploy/docker/modelport.env.example .env
 cp config.example.toml config.toml

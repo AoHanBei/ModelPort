@@ -32,6 +32,10 @@ read every document: choose the path that matches your task.
 
 ## I Want To Contribute
 
+- [Request lifecycle and evidence](REQUEST_LIFECYCLE.md) — the five core
+  mechanisms, failure scenarios, and representative tests.
+- [Project background](PROJECT_BACKGROUND.md) — contribution
+  boundaries and AI-assisted development.
 - [Development](DEVELOPMENT.md) — toolchain, local workflow, tests, and
   change-to-test matrix.
 - [Architecture](ARCHITECTURE.md) — component boundaries, request lifecycle,

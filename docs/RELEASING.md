@@ -57,17 +57,25 @@ Actions to complete commit SHAs.
 
 ## Verification
 
-Consumers should verify checksums and GitHub attestations:
+After an actual release has published its assets, consumers should verify
+checksums and GitHub attestations. Replace `X.Y.Z` with a version listed in
+[this repository's Releases](https://github.com/AoHanBei/ModelPort/releases).
+The commands below describe the release contract, not the availability of an
+already-published binary or container:
 
 ```bash
 sha256sum --check SHA256SUMS
 gh attestation verify model-port-vX.Y.Z-linux-amd64.tar.gz \
-  --repo tiammomo/ModelPort
-docker pull ghcr.io/tiammomo/modelport:X.Y.Z
+  --repo AoHanBei/ModelPort
+docker pull ghcr.io/aohanbei/modelport:X.Y.Z
+docker pull ghcr.io/aohanbei/modelport-dashboard:X.Y.Z
 ```
 
-For container provenance, verify the immutable digest rather than relying only
-on a mutable tag.
+The release workflow derives the GHCR namespace from the lowercase repository
+owner. Use these image commands only after the corresponding version and
+packages exist and are readable by consumers. Until then, build locally using
+[Getting Started](GETTING_STARTED.md). For container provenance, verify the
+immutable digest rather than relying only on a mutable tag.
 
 ## Rollback
 

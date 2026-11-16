@@ -5,10 +5,16 @@ behavior lives in the maintained documents under `docs/`.
 
 ## Repository Metadata
 
-- Description: `Self-hosted multi-protocol model gateway for Anthropic and OpenAI-compatible clients.`
-- Topics: `claude-code`, `anthropic`, `openai-compatible`, `llm-gateway`,
-  `model-router`, `rust`, `vscode`, `deepseek`.
+- Maintainer: `@AoHanBei`.
+- Description: `Rust LLM gateway with protocol adaptation, resilient routing, idempotency, budget accounting, and streaming lifecycle management.`
+- Topics: `rust`, `axum`, `llm-gateway`, `anthropic`, `openai-compatible`,
+  `claude-code`, `postgresql`, `idempotency`, `streaming`.
 - License: MIT.
+
+README workflow badges must target `AoHanBei/ModelPort`. Add a public Scorecard
+badge only after this repository has a corresponding published result. Project
+ownership and development context are documented in [LICENSE](../LICENSE) and
+[Project background](../docs/PROJECT_BACKGROUND.md).
 
 Do not claim Provider verification without dated evidence produced by the
 [Provider procedure](../docs/PROVIDERS.md#discovery-and-verification).

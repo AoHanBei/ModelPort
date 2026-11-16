@@ -1,57 +1,74 @@
 # ModelPort
 
-[![CI](https://github.com/tiammomo/ModelPort/actions/workflows/ci.yml/badge.svg)](https://github.com/tiammomo/ModelPort/actions/workflows/ci.yml)
-[![CodeQL](https://github.com/tiammomo/ModelPort/actions/workflows/codeql.yml/badge.svg)](https://github.com/tiammomo/ModelPort/actions/workflows/codeql.yml)
-[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/tiammomo/ModelPort/badge)](https://scorecard.dev/viewer/?uri=github.com/tiammomo/ModelPort)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+**One model request. Every attempt accounted for.**
+
+[![CI](https://github.com/AoHanBei/ModelPort/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/AoHanBei/ModelPort/actions/workflows/ci.yml) [![CodeQL](https://github.com/AoHanBei/ModelPort/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/AoHanBei/ModelPort/actions/workflows/codeql.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 **English** | [简体中文](README.zh-CN.md)
 
-ModelPort is a self-hosted LLM gateway for Anthropic-compatible and
-OpenAI-compatible clients. It gives Claude Code, SDKs, and internal
-applications one endpoint for authentication, model routing, quotas, usage,
-Provider health, request evidence, and operations.
+ModelPort is a self-hosted LLM gateway built with Rust and Axum. It connects
+Anthropic Messages and OpenAI Chat Completions clients to configured model
+Providers through one entry point.
 
-![ModelPort architecture overview](docs/assets/modelport-overview.svg)
+The core follows a request from protocol validation to routing, idempotency,
+budget admission, upstream execution, and stream finalization. A PostgreSQL
+ledger separates the client request from each Provider attempt, so retries,
+failures, usage sources, and estimated costs remain inspectable.
 
-## What You Get
+[Quick start](#run-locally) · [Request lifecycle](docs/REQUEST_LIFECYCLE.md) · [Dashboard](#inspect-a-request) · [Documentation](docs/README.md)
 
-- `POST /v1/messages`, `POST /v1/chat/completions`, `GET /v1/models`, and
-  opt-in exact token counting.
-- Anthropic and OpenAI-compatible Provider adapters with bounded streaming and
-  Tool Use conversion.
-- Optional CPA Codex and Claude account channels that remain internal Providers
-  behind ModelPort's policy, routing, and evidence boundary.
-- Deterministic routes plus opt-in explainable smart routing with shadow mode,
-  stable canaries, and durable decision evidence.
-- Scoped client API keys, users, teams, quotas, spend controls, Provider
-  credential pools, cooldown, and bounded fallback.
-- A React operations dashboard and a PostgreSQL request, usage, budget, and
-  audit ledger.
-- Docker Compose and systemd deployment paths, backup/restore tooling,
-  Prometheus metrics, and acceptance scripts.
+![Request execution and accounting in ModelPort](docs/assets/modelport-overview.svg)
 
-ModelPort currently supports one trusted host or a small trusted network. It is
-not a public multi-tenant service, model runtime, chat UI, payment processor, or
-Provider invoice. See [Production](docs/PRODUCTION.md) and
-[Roadmap](docs/ROADMAP.md) before making broader availability claims.
+## Five mechanisms behind a request
 
-## Quick Start
+| Mechanism | What it handles | Implementation |
+| --- | --- | --- |
+| Protocol adaptation | Typed request/response exchange, Tool Use, and protocol-native streaming; rejects unsupported semantics. | [Exchange](src/exchange.rs), [Provider adapters](src/providers/) |
+| Routing and fallback | Model resolution, credential and Provider cooldowns, and bounded candidate attempts under access, capability, and budget checks. | [Client request path](src/routes/client_api.rs), [Provider health](src/provider_status.rs) |
+| Concurrent idempotency | Tenant-scoped key hashes, request fingerprints, database uniqueness, and renewable execution leases. Duplicate keyed requests return a conflict. | [Ledger](src/enterprise_ledger.rs), [Schema](migrations/0002_idempotency_and_leases.sql) |
+| Budget accounting | A separate reservation for each admitted attempt, followed by settlement or reconciliation. Network I/O runs outside the database transaction. | [Transactional ledger](src/enterprise_ledger.rs) |
+| Stream finalization | Distinguishes protocol completion, upstream failure, and downstream cancellation; converges normal and dropped-body paths on one finalization context. | [Stream lifecycle](src/stream_lifecycle.rs), [Finalization guard](src/routes/client_api.rs) |
 
-Requirements: Git, Docker, Docker Compose v2, and credentials for at least one
-Provider. The maintained example uses DeepSeek's Anthropic-compatible endpoint.
+For a worked failure scenario, representative tests, and the scope of each
+guarantee, read [Request lifecycle](docs/REQUEST_LIFECYCLE.md).
+
+## Inspect a request
+
+The React dashboard exposes request state, tenant scope, idempotency presence,
+lease status, Provider attempts, usage, and cost provenance. Open **Enterprise
+operations (企业运行)** to move from a parent request to its individual attempts.
+
+![ModelPort request ledger with synthetic documentation data](docs/assets/request-ledger.png)
+
+*Actual dashboard UI rendered with synthetic API fixtures for documentation.
+The values illustrate the interface; they are not production measurements.*
+
+<details>
+<summary>Request detail and Provider attempts</summary>
+
+![ModelPort request detail with synthetic documentation data](docs/assets/request-detail.png)
+
+*The detail view uses the same synthetic fixture. Screenshot provenance and
+reproduction instructions are in [Assets](docs/assets/README.md).*
+
+</details>
+
+## Run locally
+
+Use a trusted host or small private network. The Compose stack runs the gateway,
+dashboard, and PostgreSQL. The commands below use a Bash shell on Linux or WSL,
+Git, Docker, Docker Compose v2, and a Provider API key.
 
 ```bash
-git clone https://github.com/tiammomo/ModelPort.git
+git clone https://github.com/AoHanBei/ModelPort.git
 cd ModelPort
 cp deploy/docker/modelport.env.example .env
 cp config.example.toml config.toml
 ```
 
-Edit `.env` and replace every required `replace-with-...` value. At minimum set
-unique router, administrator, PostgreSQL, and Provider credentials. Keep
-`MODELPORT_AUTH_TOKEN` and the client-side `ANTHROPIC_AUTH_TOKEN` equal for the
-first local test.
+Replace every required `replace-with-...` value in `.env`: router token,
+administrator credentials, PostgreSQL password, and Provider key. For the first
+local request, keep `ANTHROPIC_AUTH_TOKEN` equal to `MODELPORT_AUTH_TOKEN`.
 
 ```bash
 scripts/build-container.sh
@@ -60,101 +77,64 @@ docker compose ps
 scripts/smoke-test.sh
 ```
 
-Open `http://127.0.0.1:33002` and sign in with
-`MODELPORT_ADMIN_USERNAME`/`MODELPORT_ADMIN_PASSWORD`.
+Open `http://127.0.0.1:33002` and log in using
+`MODELPORT_ADMIN_USERNAME` / `MODELPORT_ADMIN_PASSWORD`.
 
-For local Qwen, another Provider, production hardening, or troubleshooting,
-follow the tested [Getting Started guide](docs/GETTING_STARTED.md).
+The default example uses `deepseek-v4-flash`. If your Provider exposes another
+model ID, update the environment, model configuration, and request together.
+The [Getting Started guide](docs/GETTING_STARTED.md) covers configuration,
+startup failures, alternate Providers, and the first request.
 
-## Send Your First Request
+### Connect a client
+
+| Client | Base URL | Client credential |
+| --- | --- | --- |
+| Claude Code / Anthropic-compatible SDK | `http://127.0.0.1:38082` | `ANTHROPIC_AUTH_TOKEN` |
+| OpenAI-compatible SDK | `http://127.0.0.1:38082/v1` | `OPENAI_API_KEY` |
+
+Use the router token for the first local test and a dashboard-issued scoped
+client key for shared use. Upstream Provider keys stay on the server.
 
 ```bash
 source .env
-
-curl -fsS \
+curl -fsS http://127.0.0.1:38082/v1/messages \
   -H "x-api-key: $MODELPORT_AUTH_TOKEN" \
   -H 'content-type: application/json' \
-  http://127.0.0.1:38082/v1/messages \
-  -d '{
-    "model":"deepseek-v4-flash",
-    "max_tokens":96,
-    "messages":[{"role":"user","content":"Reply exactly: OK"}]
-  }'
+  -d '{"model":"deepseek-v4-flash","max_tokens":96,"messages":[{"role":"user","content":"Reply exactly: OK"}]}'
 ```
 
-This call can consume Provider quota. `scripts/smoke-test.sh` is local-only;
-use `scripts/smoke-test.sh --upstream` when a paid synthetic call is intended.
+This request can consume Provider quota. The ordinary smoke test checks local
+health, readiness, and the model catalog; `scripts/smoke-test.sh --upstream`
+explicitly makes an upstream request.
 
-Claude Code:
+## Explore the implementation
 
-```env
-ANTHROPIC_BASE_URL=http://127.0.0.1:38082
-ANTHROPIC_AUTH_TOKEN=<MODELPORT_AUTH_TOKEN>
-ANTHROPIC_MODEL=deepseek-v4-flash
-```
+| Task | Read next |
+| --- | --- |
+| Follow request execution and failure handling | [Request lifecycle and evidence](docs/REQUEST_LIFECYCLE.md) |
+| Configure client APIs and Providers | [API](docs/API.md), [Configuration](docs/CONFIGURATION.md), [Providers](docs/PROVIDERS.md) |
+| Explore optional smart routing or CPA channels | [Smart routing](docs/SMART_ROUTING.md), [CPA boundary](docs/adr/0004-modelport-gateway-and-cpa-provider-boundary.md) |
+| Deploy, observe, back up, or restore | [Deployment](docs/DEPLOYMENT.md), [Operations](docs/OPERATIONS.md), [Production](docs/PRODUCTION.md) |
+| Develop or review a change | [Development](docs/DEVELOPMENT.md), [Contributing](CONTRIBUTING.md) |
 
-OpenAI-compatible SDK:
+Before submitting code, run `scripts/check-all.sh` with the prerequisites in
+the development guide. The [documentation index](docs/README.md) covers the
+remaining guides and architecture decisions.
 
-```env
-OPENAI_BASE_URL=http://127.0.0.1:38082/v1
-OPENAI_API_KEY=<MODELPORT_CLIENT_KEY>
-OPENAI_MODEL=deepseek-v4-flash
-```
+## Operating scope
 
-Use a dashboard-issued scoped client key for shared deployments. Provider keys
-stay in ModelPort and must never be copied into client applications.
+The supported deployment boundary is one trusted host or a small trusted
+network, with private backend/database ports and same-origin HTTPS for shared
+use. Idempotency currently rejects duplicates rather than replaying responses.
+Usage and cost records carry evidence sources and estimates; Provider invoices
+remain the authority for actual charges. See [Security](SECURITY.md),
+[Privacy](PRIVACY.md), [Support](SUPPORT.md), and [Roadmap](docs/ROADMAP.md).
 
-## Documentation
+## Project background
 
-Choose the document for your task instead of reading the whole documentation
-set:
+This public project is maintained by [AoHanBei](https://github.com/AoHanBei)
+and was rebuilt from experience with an internal internship gateway.
+[Project background](docs/PROJECT_BACKGROUND.md) records the contribution
+boundaries and AI-assisted development.
 
-- [Getting Started](docs/GETTING_STARTED.md) — install, first login, first
-  request, and common startup failures.
-- [Configuration](docs/CONFIGURATION.md) — environment and TOML reference.
-- [API](docs/API.md) — client and control-plane contracts.
-- [Providers](docs/PROVIDERS.md) — hosted Providers, local runtimes, and
-  compatibility evidence.
-- [Smart Routing](docs/SMART_ROUTING.md) — scoring, shadow, canary, and
-  rollback.
-- [Deployment](docs/DEPLOYMENT.md) — Docker Compose, systemd, and production
-  topology.
-- [Operations](docs/OPERATIONS.md) — health, logs, metrics, backup, retention,
-  incidents, and upgrades.
-- [Production](docs/PRODUCTION.md) — go-live and release acceptance.
-- [Development](docs/DEVELOPMENT.md) — contributor workflow and test matrix.
-- [Documentation index](docs/README.md) — role-based navigation.
-
-## Security And Support
-
-Keep backend and PostgreSQL ports private. Use same-origin HTTPS, exact trusted
-proxy CIDRs, secure cookies, CSRF protection, and dashboard-issued API keys for
-shared use. Never commit `.env`, Provider keys, backups, prompts, responses, or
-raw sensitive logs.
-
-Read [Security](SECURITY.md), [Privacy](PRIVACY.md), [Support](SUPPORT.md), and
-[Governance](GOVERNANCE.md). Community support has no SLA unless a separate
-written agreement provides one.
-
-## Development
-
-```bash
-cp .env.example .env
-cp config.example.toml config.toml
-# replace required placeholders
-scripts/start.sh
-
-cd dashboard
-npm ci
-npm run dev
-```
-
-Before submitting a change:
-
-```bash
-scripts/check-all.sh
-```
-
-## License
-
-[MIT](LICENSE)
+Licensed under [MIT](LICENSE).

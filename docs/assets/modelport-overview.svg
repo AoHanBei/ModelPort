@@ -1,118 +1,86 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
-  <title id="title">ModelPort architecture overview</title>
-  <desc id="desc">Anthropic and OpenAI-compatible clients call a local multi-protocol ModelPort gateway, which routes requests to configured upstream model providers.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-labelledby="title desc">
+<title id="title">ModelPort request execution and accounting</title>
+<desc id="desc">Four execution stages above a PostgreSQL ledger. One client request can have several Provider attempts, each with a separate budget reservation. Dashed connectors show record relationships, not additional execution steps.</desc>
+<defs>
+<marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M1 1 L8 5 L1 9" fill="none" stroke="#2858c5" stroke-width="1.8"/></marker>
+<style>
+.title{font:700 49px 'Segoe UI',sans-serif;fill:#fff}.sub{font:400 23px 'Segoe UI',sans-serif;fill:#bdc9df}
+.label{font:700 18px 'Consolas',monospace;letter-spacing:2px;fill:#2858c5}.h{font:650 28px 'Segoe UI',sans-serif;fill:#172b4a}
+.body{font:400 22px 'Segoe UI',sans-serif;fill:#4c5b70}.mono{font:400 21px 'Consolas',monospace;fill:#2858c5}
+.small{font:400 19px 'Segoe UI',sans-serif;fill:#526277}.white{fill:#fff}.muted{fill:#bed0ec}
+</style></defs>
+<rect width="1500" height="1000" fill="#f5f4f0"/>
+<rect width="1500" height="141" fill="#132744"/>
+<rect x="56" y="40" width="5" height="60" fill="#7fa9ff"/>
+<text x="82" y="78" class="title">ModelPort</text>
+<text x="82" y="113" class="sub">Request execution, failure handling, and accounting</text>
+<text x="1190" y="69" class="label muted">RUST / AXUM</text>
+<text x="1190" y="102" class="small muted">SELF-HOSTED GATEWAY</text>
 
-  <defs>
-    <marker id="arrow" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="strokeWidth">
-      <path d="M2,2 L12,7 L2,12 Z" fill="#0f766e"/>
-    </marker>
-    <style>
-      .bg { fill: #f6f8fb; }
-      .panel { fill: #ffffff; stroke: #d7e0e8; stroke-width: 2; }
-      .panel-strong { fill: #ffffff; stroke: #0f766e; stroke-width: 3; }
-      .band { fill: #10202b; }
-      .title { fill: #10202b; font: 700 54px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-      .subtitle { fill: #536473; font: 400 24px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-      .h2 { fill: #10202b; font: 700 28px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-      .h3 { fill: #10202b; font: 700 22px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-      .body { fill: #536473; font: 400 19px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-      .small { fill: #647485; font: 500 17px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-      .code { fill: #0f766e; font: 600 18px ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
-      .chip { fill: #e7f5f3; stroke: #b8ddd7; stroke-width: 1.4; }
-      .chip-hot { fill: #fff0dd; stroke: #ffc46b; stroke-width: 1.4; }
-      .chip-text { fill: #144f49; font: 700 17px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-      .chip-hot-text { fill: #8a4b00; font: 700 17px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-      .band-title { fill: #ffffff; font: 700 24px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-      .band-text { fill: #d4dde5; font: 500 18px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-      .arrow-label { fill: #0f766e; font: 700 17px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-    </style>
-  </defs>
-
-  <rect class="bg" width="1600" height="900"/>
-  <rect x="0" y="0" width="1600" height="132" fill="#ffffff"/>
-  <line x1="0" y1="132" x2="1600" y2="132" stroke="#d7e0e8" stroke-width="2"/>
-
-  <text class="title" x="80" y="82">ModelPort</text>
-  <text class="subtitle" x="80" y="116">Multi-protocol gateway for Claude tools, OpenAI-compatible SDKs, and common model providers</text>
-  <rect class="chip-hot" x="1260" y="48" width="260" height="44" rx="8"/>
-  <text class="chip-hot-text" x="1290" y="77">DeepSeek v4 flash</text>
-
-  <rect class="panel" x="80" y="206" width="360" height="440" rx="8"/>
-  <text class="h2" x="114" y="260">Client protocols</text>
-  <text class="body" x="114" y="294">Existing SDK workflows stay familiar.</text>
-
-  <rect x="114" y="332" width="292" height="86" rx="8" fill="#f2f6fa" stroke="#d7e0e8" stroke-width="1.5"/>
-  <text class="h3" x="140" y="366">Claude Code / VS Code</text>
-  <text class="small" x="140" y="394">Anthropic Messages API</text>
-
-  <rect x="114" y="444" width="292" height="86" rx="8" fill="#f2f6fa" stroke="#d7e0e8" stroke-width="1.5"/>
-  <text class="h3" x="140" y="478">OpenAI SDK / apps</text>
-  <text class="small" x="140" y="506">Chat Completions API</text>
-
-  <rect x="114" y="558" width="292" height="54" rx="8" fill="#ecf8f6" stroke="#b8ddd7" stroke-width="1.5"/>
-  <text class="code" x="136" y="592">127.0.0.1:38082</text>
-
-  <line x1="456" y1="426" x2="514" y2="426" stroke="#0f766e" stroke-width="4" marker-end="url(#arrow)"/>
-  <text class="arrow-label" x="474" y="396">API</text>
-
-  <rect class="panel-strong" x="530" y="176" width="540" height="500" rx="8"/>
-  <text class="h2" x="570" y="234">ModelPort local gateway</text>
-  <text class="body" x="570" y="270">Auth, routing, conversion, streaming, metrics.</text>
-
-  <rect x="570" y="312" width="460" height="56" rx="8" fill="#f2f6fa" stroke="#d7e0e8" stroke-width="1.5"/>
-  <text class="h3" x="596" y="347">Local token auth</text>
-  <text class="small" x="820" y="347">default on</text>
-
-  <rect x="570" y="386" width="460" height="56" rx="8" fill="#f2f6fa" stroke="#d7e0e8" stroke-width="1.5"/>
-  <text class="h3" x="596" y="421">Model routing</text>
-  <text class="small" x="780" y="421">aliases and prefixes</text>
-
-  <rect x="570" y="460" width="460" height="56" rx="8" fill="#f2f6fa" stroke="#d7e0e8" stroke-width="1.5"/>
-  <text class="h3" x="596" y="495">Typed Exchange IR</text>
-  <text class="small" x="824" y="495">Anthropic ↔ OpenAI</text>
-
-  <rect x="570" y="534" width="460" height="56" rx="8" fill="#f2f6fa" stroke="#d7e0e8" stroke-width="1.5"/>
-  <text class="h3" x="596" y="569">Protocol-native SSE</text>
-  <text class="small" x="846" y="569">terminal usage</text>
-
-  <rect x="570" y="608" width="460" height="44" rx="8" fill="#ecf8f6" stroke="#b8ddd7" stroke-width="1.5"/>
-  <text class="code" x="596" y="636">/v1/messages  /v1/chat/completions</text>
-
-  <line x1="1086" y1="426" x2="1144" y2="426" stroke="#0f766e" stroke-width="4" marker-end="url(#arrow)"/>
-  <text class="arrow-label" x="1104" y="396">API</text>
-
-  <rect class="panel" x="1160" y="206" width="360" height="460" rx="8"/>
-  <text class="h2" x="1194" y="260">Providers</text>
-  <text class="body" x="1194" y="294">Use one config model name per tool.</text>
-
-  <rect class="chip-hot" x="1194" y="332" width="292" height="42" rx="8"/>
-  <text class="chip-hot-text" x="1218" y="359">DeepSeek v4 flash</text>
-
-  <rect class="chip" x="1194" y="388" width="292" height="42" rx="8"/>
-  <text class="chip-text" x="1218" y="415">OpenAI-compatible</text>
-
-  <rect class="chip" x="1194" y="444" width="292" height="42" rx="8"/>
-  <text class="chip-text" x="1218" y="471">Anthropic-compatible</text>
-
-  <rect class="chip" x="1194" y="500" width="292" height="42" rx="8"/>
-  <text class="chip-text" x="1218" y="527">OpenAI</text>
-
-  <rect class="chip" x="1194" y="556" width="292" height="42" rx="8"/>
-  <text class="chip-text" x="1218" y="583">OpenRouter</text>
-
-  <rect class="chip" x="1194" y="612" width="292" height="42" rx="8"/>
-  <text class="chip-text" x="1218" y="639">Ollama / Custom</text>
-
-  <rect class="band" x="80" y="728" width="1440" height="108" rx="8"/>
-  <text class="band-title" x="114" y="772">Production checks</text>
-  <text class="band-text" x="114" y="806">Validate config, verify upstream, then observe health and metrics.</text>
-
-  <rect x="820" y="754" width="166" height="42" rx="8" fill="#ffffff" opacity="0.95"/>
-  <text class="chip-text" x="845" y="781">config validate</text>
-  <rect x="1006" y="754" width="190" height="42" rx="8" fill="#ffffff" opacity="0.95"/>
-  <text class="chip-text" x="1032" y="781">doctor upstream</text>
-  <rect x="1216" y="754" width="190" height="42" rx="8" fill="#ffffff" opacity="0.95"/>
-  <text class="chip-text" x="1242" y="781">provider matrix</text>
-  <rect x="1426" y="754" width="94" height="42" rx="8" fill="#ffffff" opacity="0.95"/>
-  <text class="chip-text" x="1439" y="781">/metrics</text>
+<rect x="56" y="197" width="320" height="270" rx="5" fill="#fff" stroke="#d5dce5" stroke-width="1.5"/>
+<rect x="56" y="197" width="320" height="5" fill="#2858c5"/>
+<text x="76" y="239" class="label">01 / ACCEPT</text>
+<text x="76" y="281" class="h">Validate the request</text>
+<text x="76" y="326" class="small">Client key + tenant scope</text>
+<text x="76" y="360" class="small">Messages / Chat Completions</text>
+<text x="76" y="394" class="small">Typed exchange + Tool Use</text>
+<text x="76" y="438" class="small">src/exchange.rs</text>
+<rect x="412" y="197" width="320" height="270" rx="5" fill="#fff" stroke="#d5dce5" stroke-width="1.5"/>
+<rect x="412" y="197" width="320" height="5" fill="#2858c5"/>
+<text x="432" y="239" class="label">02 / PLAN + CLAIM</text>
+<text x="432" y="281" class="h">Own the execution</text>
+<text x="432" y="326" class="small">Resolve candidate routes</text>
+<text x="432" y="360" class="small">Idempotency + fingerprint</text>
+<text x="432" y="394" class="small">Request record + lease</text>
+<text x="432" y="438" class="small">src/routes/client_api.rs</text>
+<rect x="768" y="197" width="320" height="270" rx="5" fill="#fff" stroke="#d5dce5" stroke-width="1.5"/>
+<rect x="768" y="197" width="320" height="5" fill="#2858c5"/>
+<text x="788" y="239" class="label">03 / EXECUTE</text>
+<text x="788" y="281" class="h">Admit each attempt</text>
+<text x="788" y="326" class="small">Capability + cooldown checks</text>
+<text x="788" y="360" class="small">Reserve before upstream I/O</text>
+<text x="788" y="394" class="small">Bounded eligible fallback</text>
+<text x="788" y="438" class="small">src/enterprise_ledger.rs</text>
+<rect x="1124" y="197" width="320" height="270" rx="5" fill="#fff" stroke="#d5dce5" stroke-width="1.5"/>
+<rect x="1124" y="197" width="320" height="5" fill="#2858c5"/>
+<text x="1144" y="239" class="label">04 / FINALIZE</text>
+<text x="1144" y="281" class="h">Close the lifecycle</text>
+<text x="1144" y="326" class="small">JSON result / stream terminal</text>
+<text x="1144" y="360" class="small">Failure / downstream cancel</text>
+<text x="1144" y="394" class="small">Finalize once; release permit</text>
+<text x="1144" y="438" class="small">src/stream_lifecycle.rs</text>
+<path d="M382 324 H405" fill="none" stroke="#2858c5" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M738 324 H761" fill="none" stroke="#2858c5" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M1094 324 H1117" fill="none" stroke="#2858c5" stroke-width="2.5" marker-end="url(#arrow)"/>
+<text x="56" y="177" class="label">CLAUDE CODE / SDK / INTERNAL AGENT</text>
+<path d="M572 467 V493 H236 V535" fill="none" stroke="#8293ab" stroke-width="1.8" stroke-dasharray="5 5"/>
+<path d="M928 467 V493 H707 V535" fill="none" stroke="#8293ab" stroke-width="1.8" stroke-dasharray="5 5"/>
+<path d="M1284 467 V493 H1230 V535" fill="none" stroke="#8293ab" stroke-width="1.8" stroke-dasharray="5 5"/>
+<rect x="56" y="535" width="1388" height="362" rx="5" fill="#fff" stroke="#bac9de" stroke-width="1.5"/>
+<rect x="56" y="535" width="1388" height="53" fill="#e9eef8"/>
+<text x="80" y="570" class="label">POSTGRESQL LEDGER</text>
+<text x="805" y="570" class="small">Dashed lines = execution-to-record relationships</text>
+<path d="M434 611 V871 M989 611 V871" stroke="#d5dce5" stroke-width="1.5"/>
+<text x="80" y="628" class="label">ONE CLIENT REQUEST</text>
+<text x="80" y="674" class="h">Gateway Request</text>
+<text x="80" y="716" class="mono">grq_example</text>
+<text x="80" y="757" class="body">Identity + tenant scope</text>
+<text x="80" y="792" class="body">Overall state + usage</text>
+<text x="80" y="827" class="body">Idempotency + lease</text>
+<text x="462" y="628" class="label">ONE OR MORE ATTEMPTS</text>
+<rect x="462" y="650" width="499" height="79" rx="5" fill="#fff7e8" stroke="#e9d4ad" stroke-width="1.5"/>
+<text x="482" y="681" class="mono">att_01 / Provider A</text>
+<text x="482" y="711" class="small">Recoverable failure; cost evidence retained</text>
+<rect x="462" y="747" width="499" height="79" rx="5" fill="#eef4ff" stroke="#c4d4f3" stroke-width="1.5"/>
+<text x="482" y="778" class="mono">att_02 / Provider B</text>
+<text x="482" y="808" class="small">Completed; usage source recorded</text>
+<text x="462" y="862" class="small">Illustrative two-attempt relationship</text>
+<text x="1018" y="628" class="label">BUDGET PER ATTEMPT</text>
+<text x="1018" y="674" class="h">Reserve → resolve</text>
+<text x="1018" y="718" class="body">Admission estimate</text>
+<text x="1018" y="753" class="body">Settlement / release event</text>
+<text x="1018" y="788" class="body">Usage + price provenance</text>
+<text x="1018" y="823" class="body">Expiry → unreconciled state</text>
+<path d="M80 924 H1444" stroke="#cdd5df"/>
+<text x="80" y="957" class="body">Inspect the parent request, every attempt, and the evidence behind estimated cost.</text>
 </svg>

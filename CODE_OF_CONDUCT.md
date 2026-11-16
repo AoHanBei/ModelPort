@@ -52,7 +52,7 @@ officially representing the project in public spaces.
 
 Report abusive, harassing, or otherwise unacceptable behavior to the
 maintainer through a private contact method listed on the
-[maintainer's GitHub profile](https://github.com/tiammomo). Do not publish
+[maintainer's GitHub profile](https://github.com/AoHanBei). Do not publish
 personal details in an issue. Reports will be reviewed promptly and kept
 confidential as far as reasonably possible.
 
